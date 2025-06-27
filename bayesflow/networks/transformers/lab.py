@@ -56,16 +56,19 @@ class LinearAttention(Layer):
 
         super().build(input_shape)
 
-    def call(self, inputs, training=False, return_attention=False):
-        # Compute queries, keys, and values
-        queries = ops.matmul(inputs, self.query_weights)
-        keys = ops.matmul(inputs, self.key_weights)
-        values = ops.matmul(inputs, self.value_weights)
-
+    def call(self, query, key=None, value=None, training=False, return_attention=False):
+        if key is None:
+            key = query
+        if value is None:
+            value = key
+        
+        queries = ops.matmul(query, self.query_weights)
+        keys = ops.matmul(key, self.key_weights)
+        values = ops.matmul(value, self.value_weights)
         if self.use_bias:
             queries = queries + self.query_bias
-            keys = keys + self.query_bias
-            values = values + self.query_bias
+            keys = keys + self.key_bias
+            values = values + self.value_bias
         
         queries = ops.relu(queries) + 1
         keys = ops.relu(keys) + 1

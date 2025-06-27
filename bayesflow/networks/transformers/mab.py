@@ -6,6 +6,7 @@ from bayesflow.types import Tensor
 from bayesflow.utils import layer_kwargs
 from bayesflow.utils.decorators import sanitize_input_shape
 from bayesflow.utils.serialization import serializable
+from bayesflow.networks.transformers.mlab import MultiHeadLinearAttention
 
 
 @serializable("bayesflow.networks")
@@ -68,7 +69,7 @@ class MultiHeadAttentionBlock(keras.Layer):
         super().__init__(**layer_kwargs(kwargs))
 
         self.input_projector = layers.Dense(embed_dim, name="input_projector")
-        self.attention = layers.MultiHeadAttention(
+        self.attention = MultiHeadLinearAttention(
             key_dim=embed_dim,
             num_heads=num_heads,
             dropout=dropout,
