@@ -6,9 +6,9 @@ from bayesflow.utils.serialization import serializable
 
 from ..summary_network import SummaryNetwork
 
-from .sab import SetAttentionBlock
-from .isab import InducedSetAttentionBlock
-from .pma import PoolingByMultiHeadAttention
+from .attention.sab import SetAttentionBlock
+from .attention.isab import InducedSetAttentionBlock
+from .attention.pma import PoolingByMultiHeadAttention
 
 
 @serializable("bayesflow.networks")
@@ -39,6 +39,7 @@ class SetTransformer(SummaryNetwork):
         layer_norm: bool = True,
         num_inducing_points: int = None,
         seed_dim: int = None,
+        linear_attention: bool = False,
         **kwargs,
     ):
         """
@@ -75,6 +76,8 @@ class SetTransformer(SummaryNetwork):
             Number of inducing points used, if applicable. If set to None, this option is disabled.
         seed_dim : int or None, optional (default - None)
             Dimensionality of the seed embeddings. If None, it defaults to `summary_dim`.
+        linear_attention : bool, optional (default - False)
+            Toggle for use of linear attention. Defaults to False
         **kwargs : dict
             Additional keyword arguments passed to the base layer.
         """
@@ -94,6 +97,7 @@ class SetTransformer(SummaryNetwork):
             kernel_initializer=kernel_initializer,
             use_bias=use_bias,
             layer_norm=layer_norm,
+            linear_attention=linear_attention
         )
 
         for i in range(num_attention_layers):

@@ -7,7 +7,7 @@ from bayesflow.utils.serialization import serializable
 from ..embeddings import Time2Vec, RecurrentEmbedding
 from ..summary_network import SummaryNetwork
 
-from .mab import MultiHeadAttentionBlock
+from .attention.mab import MultiHeadAttentionBlock
 
 
 @serializable("bayesflow.networks")

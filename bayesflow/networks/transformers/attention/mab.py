@@ -6,7 +6,8 @@ from bayesflow.types import Tensor
 from bayesflow.utils import layer_kwargs
 from bayesflow.utils.decorators import sanitize_input_shape
 from bayesflow.utils.serialization import serializable
-from bayesflow.networks.transformers.mlab import MultiHeadLinearAttention
+
+from .multihead_linear_attention import MultiHeadLinearAttention
 
 
 @serializable("bayesflow.networks")
@@ -37,6 +38,7 @@ class MultiHeadAttentionBlock(keras.Layer):
         kernel_initializer: str = "lecun_normal",
         use_bias: bool = True,
         layer_norm: bool = True,
+        linear_attention: bool = False,
         **kwargs,
     ):
         """Creates a multi-head attention block which will typically be used as part of a
@@ -62,6 +64,8 @@ class MultiHeadAttentionBlock(keras.Layer):
             Whether to include bias terms in dense layers, by default True.
         layer_norm : bool, optional
             Whether to apply layer normalization before and after attention, by default True.
+        linear_attention: bool, optional
+            Whether to use MultiHead Linear Attention, by default False.
         **kwargs : dict
             Additional keyword arguments passed to the Keras Layer base class.
         """
@@ -69,14 +73,24 @@ class MultiHeadAttentionBlock(keras.Layer):
         super().__init__(**layer_kwargs(kwargs))
 
         self.input_projector = layers.Dense(embed_dim, name="input_projector")
-        self.attention = MultiHeadLinearAttention(
-            key_dim=embed_dim,
-            num_heads=num_heads,
-            dropout=dropout,
-            use_bias=use_bias,
-            output_shape=embed_dim,
-            name="attention",
-        )
+        if linear_attention:
+            self.attention = MultiHeadLinearAttention(
+                key_dim=embed_dim,
+                num_heads=num_heads,
+                dropout=dropout,
+                use_bias=use_bias,
+                output_shape=embed_dim,
+                name="attention",
+            )
+        else:
+            self.attention = keras.layers.MultiHeadAttention(
+                key_dim=embed_dim,
+                num_heads=num_heads,
+                dropout=dropout,
+                use_bias=use_bias,
+                output_shape=embed_dim,
+                name="attention",
+            )
         self.ln_pre = layers.LayerNormalization(name="layer_norm_pre") if layer_norm else None
         self.mlp = MLP(
             widths=(mlp_width,) * mlp_depth,

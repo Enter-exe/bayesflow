@@ -3,30 +3,33 @@ from keras import ops, random
 from keras.layers import Layer
 from keras.layers import Dropout
 
-
+@serializable("bayesflow.networks")
 class LinearAttention(Layer):
     """
-    lab.py
+    A custom Keras layer implementing linear attention.
 
-    Defines a custom Keras layer implementing linear attention for use in deep learning models.
-    This layer projects the input into query, key, and value spaces and computes attention
+    This layer projects input into query, key, and value spaces and computes attention
     using a simplified linear formulation instead of traditional scaled dot-product attention.
-
-    Classes:
-        LinearAttention: Implements linear attention with learnable projections and optional bias.
     """
+
     
     
     def __init__(self, feature_dim, dropout_rate=0.2, use_bias=False, **kwargs):
         """
-        Initializes the LinearAttention layer.
+        Initialize the LinearAttention layer.
 
-        Args:
-            feature_dim (int): Dimensionality of query/key/value projections.
-            dropout_rate (float): Dropout rate for attention weights.
-            use_bias (bool): Whether to include a bias term in projections.
-            **kwargs: Additional keyword arguments for base Layer.
+        Parameters
+        ----------
+        feature_dim : int
+            Dimensionality of query/key/value projections.
+        dropout_rate : float, optional
+            Dropout rate for attention weights (default is 0.2).
+        use_bias : bool, optional
+            Whether to include a bias term in projections (default is False).
+        **kwargs : dict
+            Additional keyword arguments for the base Layer.
         """
+
         super().__init__(**kwargs)
         self.feature_dim = feature_dim
         self.dropout = Dropout(dropout_rate)
@@ -34,11 +37,14 @@ class LinearAttention(Layer):
 
     def build(self, input_shape):
         """
-        Creates learnable weights for query, key, and value projections.
+        Create learnable weights for query, key, and value projections.
 
-        Args:
-            input_shape (TensorShape): Shape of the input tensor.
+        Parameters
+        ----------
+        input_shape : TensorShape
+            Shape of the input tensor.
         """
+
         self.query_weights = self.add_weight(
             shape=(input_shape[-1], self.feature_dim),
             initializer="glorot_uniform",
@@ -84,19 +90,28 @@ class LinearAttention(Layer):
 
     def call(self, query, key=None, value=None, training=False, return_attention=False):
         """
-        Computes the forward pass for the linear attention mechanism.
+        Compute the forward pass for the linear attention mechanism.
 
-        Args:
-            query (Tensor): Query tensor of shape (batch_size, seq_len, embed_dim).
-            key (Tensor, optional): Key tensor. Defaults to `query` if None.
-            value (Tensor, optional): Value tensor. Defaults to `key` if None.
-            training (bool): Whether the layer is in training mode (affects dropout).
-            return_attention (bool): If True, also return the attention weights.
+        Parameters
+        ----------
+        query : Tensor
+            Query tensor of shape (batch_size, seq_len, embed_dim).
+        key : Tensor, optional
+            Key tensor. Defaults to `query` if None.
+        value : Tensor, optional
+            Value tensor. Defaults to `key` if None.
+        training : bool, optional
+            Whether the layer is in training mode (affects dropout).
+        return_attention : bool, optional
+            If True, also return the attention weights.
 
-        Returns:
-            Tensor or Tuple[Tensor, Tensor]: Output tensor of shape 
-            (batch_size, seq_len, feature_dim), optionally with attention weights.
+        Returns
+        -------
+        Tensor or Tuple[Tensor, Tensor]
+            Output tensor of shape (batch_size, seq_len, feature_dim),
+            optionally with attention weights.
         """
+
         
         if key is None:
             key = query
@@ -132,22 +147,29 @@ class LinearAttention(Layer):
 
     def compute_output_shape(self, input_shape):
         """
-        Computes the output shape of the layer.
+        Compute the output shape of the layer.
 
-        Args:
-            input_shape (TensorShape): Shape of the input tensor.
+        Parameters
+        ----------
+        input_shape : TensorShape
+            Shape of the input tensor.
 
-        Returns:
-            TensorShape: Shape of the output tensor.
+        Returns
+        -------
+        TensorShape
+            Shape of the output tensor.
         """
+
         return (input_shape[0], self.feature_dim)
     
     def get_config(self):
         """
-        Returns the config of the layer for serialization.
+        Return the config of the layer for serialization.
 
-        Returns:
-            dict: Configuration dictionary.
+        Returns
+        -------
+        dict
+            Configuration dictionary.
         """
 
         config = super().getconfig()

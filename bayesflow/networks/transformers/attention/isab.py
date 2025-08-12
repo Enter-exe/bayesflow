@@ -29,6 +29,7 @@ class InducedSetAttentionBlock(keras.Layer):
         kernel_initializer: str = "lecun_normal",
         use_bias: bool = True,
         layer_norm: bool = True,
+        linear_attention: bool = False,
         **kwargs,
     ):
         """Creates a self-attention attention block with inducing points (ISAB) which will typically
@@ -56,6 +57,8 @@ class InducedSetAttentionBlock(keras.Layer):
             Whether to include bias terms in dense layers, by default True.
         layer_norm : bool, optional
             Whether to apply layer normalization before and after attention, by default True.
+        linear_attention : bool, optional (default - False)
+            Toggle for use of linear attention. Defaults to False
         **kwargs : dict
             Additional keyword arguments passed to the Keras Layer base class.
         """
@@ -78,6 +81,7 @@ class InducedSetAttentionBlock(keras.Layer):
             kernel_initializer=kernel_initializer,
             use_bias=use_bias,
             layer_norm=layer_norm,
+            linear_attention=linear_attention,
         )
         self.mab0 = MultiHeadAttentionBlock(**mab_kwargs)
         self.mab1 = MultiHeadAttentionBlock(**mab_kwargs)
