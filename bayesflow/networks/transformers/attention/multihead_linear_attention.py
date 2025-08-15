@@ -1,6 +1,8 @@
-import keras
-from keras import layers, ops, random
+from keras import layers, ops
 from .linear_attention import LinearAttention
+
+from bayesflow.utils.serialization import serializable
+
 
 @serializable("bayesflow.networks")
 class MultiHeadLinearAttention(layers.Layer):

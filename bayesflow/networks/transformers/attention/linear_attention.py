@@ -1,7 +1,9 @@
-import keras
-from keras import ops, random
+from keras import ops
 from keras.layers import Layer
 from keras.layers import Dropout
+
+from bayesflow.utils.serialization import serializable
+
 
 @serializable("bayesflow.networks")
 class LinearAttention(Layer):
@@ -12,8 +14,6 @@ class LinearAttention(Layer):
     using a simplified linear formulation instead of traditional scaled dot-product attention.
     """
 
-    
-    
     def __init__(self, feature_dim, dropout_rate=0.2, use_bias=False, **kwargs):
         """
         Initialize the LinearAttention layer.
@@ -144,23 +144,6 @@ class LinearAttention(Layer):
         queries = ops.transpose(queries, (0,2,1))
         output = ops.matmul(context, queries)
         return output
-
-    def compute_output_shape(self, input_shape):
-        """
-        Compute the output shape of the layer.
-
-        Parameters
-        ----------
-        input_shape : TensorShape
-            Shape of the input tensor.
-
-        Returns
-        -------
-        TensorShape
-            Shape of the output tensor.
-        """
-
-        return (input_shape[0], self.feature_dim)
     
     def get_config(self):
         """
@@ -172,10 +155,10 @@ class LinearAttention(Layer):
             Configuration dictionary.
         """
 
-        config = super().getconfig()
+        config = super().get_config()
         config.update({
             "feature_dim": self.feature_dim,
-            "droupout_rate": self.dropout.rate,
+            "dropout_rate": self.dropout.rate,
             "use_bias": self.use_bias
         })
         return config
