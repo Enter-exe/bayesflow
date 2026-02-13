@@ -21,7 +21,7 @@ class SetAttentionBlock(MultiHeadAttentionBlock):
     def build(self, input_set_shape):
         self.call(keras.ops.zeros(input_set_shape))
 
-    def call(self, input_set: Tensor, training: bool = False, **kwargs) -> Tensor:
+    def call(self, input_set: Tensor, training: bool = False) -> Tensor:
         """Performs the forward pass through the self-attention layer.
 
         Parameters
@@ -41,7 +41,7 @@ class SetAttentionBlock(MultiHeadAttentionBlock):
             Output of shape (batch_size, set_size, output_dim)
         """
 
-        return super().call(input_set, input_set, training=training, **kwargs)
+        return super().call(input_set, input_set, training=training)
 
     # noinspection PyMethodOverriding
     @sanitize_input_shape

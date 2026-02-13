@@ -52,9 +52,39 @@ class MultiHeadLinearAttention(layers.Layer):
 
         self.heads = [LinearAttention(feature_dim=key_dim, dropout_rate=dropout, use_bias=use_bias) for _ in range(num_heads)]
 
-        self.output_projection = layers.Dense(self.output_shape, use_bias)
+        self.output_projection = layers.Dense(self.output_shape, use_bias=use_bias, activation=None)
 
     def split_heads(self, x):
+        """
+        Split the input tensor into multiple attention heads.
+
+        Parameters
+        ----------
+        x : Tensor
+            Input tensor of shape (batch_size, seq_len, embed_dim).
+
+        Returns
+        -------
+        Tensor
+            Tensor of shape (batch_size, num_heads, seq_len, key_dim).
+        """
+        # Validate that embed_dim = num_heads * key_dim
+        #embed_dim = ops.shape(x)[-1]
+        print(ops.shape(x)[0])
+        print(ops.shape(x)[1])
+        print(self.num_heads)
+        print(self.key_dim)
+        #expected_dim = self.num_heads * self.key_dim
+        #if embed_dim != expected_dim:
+            #raise ValueError(
+            #    f"Embedding dimension ({embed_dim}) must equal num_heads * key_dim "
+            #    f"({self.num_heads} * {self.key_dim} = {expected_dim})."
+            #)
+
+        # Reshape and transpose
+        x = ops.reshape(x, (ops.shape(x)[0], ops.shape(x)[1]/self.num_heads/self.key_dim, self.num_heads, self.key_dim))
+        return ops.transpose(x, (0, 2, 1, 3))  # (batch, num_heads, seq_len, key_dim)
+    #def split_heads(self, x):
         """
         Split the input tensor into multiple attention heads.
 
@@ -68,9 +98,15 @@ class MultiHeadLinearAttention(layers.Layer):
         List[Tensor]
             List of split tensors for each head.
         """
-
-        x = ops.reshape(x, (ops.shape(x)[0], ops.shape(x)[1], self.num_heads, self.head_dim))
-        return ops.transpose(x, (0, 2, 1, 3))  
+        ##print('__________________________')
+        #print(ops.shape(x)[0])
+        #print(ops.shape(x)[1])
+        #print(self.num_heads)
+        #print(self.key_dim)
+        #(num_heads, a,b,c)
+        #x = ops.reshape(x, (ops.shape(x)[0], ops.shape(x)[1], self.num_heads))#, self.key_dim))
+        
+        #return ops.transpose(x, (0, 2, 1, 3))  
 
     def combine_heads(self, x):
         """

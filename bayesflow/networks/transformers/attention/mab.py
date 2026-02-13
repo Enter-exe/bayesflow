@@ -7,7 +7,8 @@ from bayesflow.utils import layer_kwargs
 from bayesflow.utils.decorators import sanitize_input_shape
 from bayesflow.utils.serialization import serializable
 
-from .multihead_linear_attention import MultiHeadLinearAttention
+#from .multihead_linear_attention import MultiHeadLinearAttention
+from .mla import LinearMultiHeadAttention
 
 
 @serializable("bayesflow.networks")
@@ -74,7 +75,7 @@ class MultiHeadAttentionBlock(keras.Layer):
 
         self.input_projector = layers.Dense(embed_dim, name="input_projector")
         if linear_attention:
-            self.attention = MultiHeadLinearAttention(
+            self.attention = LinearMultiHeadAttention(
                 key_dim=embed_dim,
                 num_heads=num_heads,
                 dropout=dropout,
@@ -140,6 +141,13 @@ class MultiHeadAttentionBlock(keras.Layer):
     # noinspection PyMethodOverriding
     @sanitize_input_shape
     def build(self, seq_x_shape, seq_y_shape):
+        # Ensure sublayers are built with the right shapes
+        self.input_projector.build(seq_x_shape)
+
+        # THIS IS THE IMPORTANT LINE:
+        self.attention.build((seq_x_shape, seq_y_shape, seq_y_shape))
+
+        # Now it is safe to run a dummy forward pass
         self.call(keras.ops.zeros(seq_x_shape), keras.ops.zeros(seq_y_shape))
 
     @sanitize_input_shape
